@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Preço de Ações com Gráfico</title>
+
+    <link rel="stylesheet" href="style.css">
+    <!-- Importando a fonte Space Grotesk do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif; /* Aplicando a fonte Space Grotesk */
+            background-color: #E1E5F2; /* Background principal da página */
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #FFFFFF; /* Fundo branco para o container */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #000000; /* Título em preto */
+            font-weight: 500; /* Peso médio para o título */
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #F0F0F0; /* Bordas em cinza claro */
+            border-radius: 4px;
+            background-color: #E1E5F2; /* Fundo do input */
+            color: #000000; /* Texto do input em preto */
+            font-family: 'Space Grotesk', sans-serif; /* Garantindo a aplicação da fonte */
+            transition: all 0.3s ease-in-out; /* Transição suave ao focar */
+        }
+        input:focus {
+            border-color: #5846FB; /* Mudar cor da borda ao focar */
+            outline: none;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #5846FB; /* Botão roxo */
+            color: #FFFFFF; /* Texto do botão em branco */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif; /* Garantindo a aplicação da fonte */
+            font-weight: 700; /* Deixando o texto do botão mais forte */
+            transition: background-color 0.3s ease-in-out; /* Efeito de transição na cor do botão */
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result p {
+            font-size: 18px;
+            margin: 5px 0;
+            color: #000000; /* Texto dos resultados em preto */
+        }
+        #chart_div {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+            background-color: #FFFFFF; /* Fundo do gráfico branco */
+            transition: opacity 0.5s ease-in-out; /* Transição suave no gráfico */
+        }
+    </style>
+
+    <!-- Google Charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+
+    <header id="cabecalho">
+        <div id="header-h2">
+          <a href="#cabecalho">
+            <h2>
+              TCC Co. Finance
+            </h2>
+          </a>
+        </div>
+        <div id="header-menu">
+          <nav id="menu-header">
+            <a href=index.html>Home</a>
+            <a href="calculadora.html">Calculadora</a>
+            <a href="carteira.html">Sua Carteira</a>
+            <a href="pesquisa.html">Ações</a>
+            <a href="login.html">Login</a>
+          </nav>
+        </div>
+      </header>
+
+    <div class="container">
+        <h1>Consulta de Preço de Ações com Gráfico</h1>
+        <form id="stockForm">
+            <input type="text" id="symbol" placeholder="Digite o símbolo da ação (ex: AAPL)" required>
+            <button type="submit">Buscar Preço e Gráfico</button>
+        </form>
+
+        <div class="result" id="result"></div>
+        <div id="chart_div"></div> <!-- Div para o gráfico -->
+    </div>
+
+    <script>
+        const form = document.getElementById('stockForm');
+        const resultDiv = document.getElementById('result');
+        const chartDiv = document.getElementById('chart_div');
+
+        // Carregar a biblioteca de gráficos do Google Charts
+        google.charts.load('current', {'packages':['corechart']});
+        
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Evitar recarregamento da página
+
+            const symbol = document.getElementById('symbol').value.toUpperCase();
+            const apiKey = '9XWM38KJHSBPU9ZS'; // Substitua pela sua chave da Alpha Vantage
+            const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data['Error Message']) {
+                    resultDiv.innerHTML = `<p>Erro: Símbolo não encontrado.</p>`;
+                } else {
+                    const timeSeries = data['Time Series (Daily)'];
+                    const chartData = [['Data', 'Preço de Fechamento']];
+
+                    for (const date in timeSeries) {
+                        const closingPrice = parseFloat(timeSeries[date]['4. close']);
+                        chartData.push([new Date(date), closingPrice]);
+                    }
+
+                    resultDiv.innerHTML = `<p>Gráfico de preços para ${symbol}:</p>`;
+                    
+                    // Chamar função para desenhar o gráfico
+                    drawChart(chartData);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Erro ao buscar os dados. Verifique sua conexão ou tente novamente mais tarde.</p>`;
+            }
+        });
+
+        // Função para desenhar o gráfico usando Google Charts
+        function drawChart(chartData) {
+            const data = google.visualization.arrayToDataTable(chartData);
+
+            const options = {
+                title: 'Histórico de Preços',
+                curveType: 'function',
+                legend: { position: 'bottom' },
+                hAxis: {
+                    title: 'Data',
+                    format: 'MMM dd, yyyy',
+                    gridlines: { count: 15 }
+                },
+                vAxis: {
+                    title: 'Preço de Fechamento (USD)'
+                },
+                chartArea: { width: '80%', height: '70%' },
+                animation: {
+                    startup: true,    // Ativar animação no carregamento
+                    duration: 1000,   // Duração da animação (1 segundo)
+                    easing: 'inAndOut' // Efeito de transição suave
+                }
+            };
+
+            const chart = new google.visualization.LineChart(chartDiv);
+
+            // Desenhar o gráfico com animação
+            chartDiv.style.opacity = 0; // Inicialmente invisível
+            setTimeout(() => {
+                chartDiv.style.opacity = 1; // Transição suave para visível
+                chart.draw(data, options);   // Desenha o gráfico com animação
+            }, 200);
+        }
+    </script>
+
+<footer id="rodape">
+    <div id="rodape-rodape">
+      <h2><a href="#cabecalho">TCC Co. Finance</a></h2>
+      <p>Termos & Condições | Política de Privacidade | Política de Cookies</p>
+    </div>
+  </footer>
+</body>
+</html>

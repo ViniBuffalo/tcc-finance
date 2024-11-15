@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>TCC Co. Finance | Sua Carteira</title>
+  <link rel="icon" href="assets/TCC Co-Photoroom.png">
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {'packages': ['corechart']});
+    
+    function drawChart(dataTable) {
+      var data = google.visualization.arrayToDataTable(dataTable);
+
+      var options = {
+        title: 'Diversificação'
+      };
+
+      var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+      chart.draw(data, options);
+    }
+
+    function updateChart() {
+      var profile = document.getElementById('profile-select').value;
+      var dataTable;
+
+      switch(profile) {
+        case 'conservador':
+          dataTable = [
+            ['Diversificação', 'Porcentagem de aplicação'],
+            ['Renda Fixa', 70],
+            ['Fundos Imobiliários', 10],
+            ['Ações', 10],
+            ['Ativos Estrangeiros', 5],
+            ['Ouro', 5]
+          ];
+          break;
+        case 'moderado':
+          dataTable = [
+            ['Diversificação', 'Porcentagem de aplicação'],
+            ['Renda Fixa', 50],
+            ['Fundos Imobiliários', 15],
+            ['Ações', 20],
+            ['Ativos Estrangeiros', 10],
+            ['Ouro', 5]
+          ];
+          break;
+        case 'arrojado':
+          dataTable = [
+            ['Diversificação', 'Porcentagem de aplicação'],
+            ['Renda Fixa', 30],
+            ['Fundos Imobiliários', 10],
+            ['Ações', 40],
+            ['Ativos Estrangeiros', 10],
+            ['Ouro', 10]
+          ];
+          break;
+        case 'agressivo':
+          dataTable = [
+            ['Diversificação', 'Porcentagem de aplicação'],
+            ['Renda Fixa', 10],
+            ['Fundos Imobiliários', 10],
+            ['Ações', 50],
+            ['Ativos Estrangeiros', 20],
+            ['Ouro', 10]
+          ];
+          break;
+        default:
+          dataTable = [
+            ['Diversificação', 'Porcentagem de aplicação'],
+            ['Renda Fixa', 0],
+            ['Fundos Imobiliários', 0],
+            ['Ações', 0],
+            ['Ativos Estrangeiros', 0],
+            ['Ouro', 0]
+          ];
+      }
+
+      drawChart(dataTable);
+    }
+
+    google.charts.setOnLoadCallback(updateChart);
+  </script>
+</head>
+
+<body>
+
+  <header id="cabecalho">
+    <div id="header-h2">
+      <a href="#cabecalho">
+        <h2>
+          TCC Co. Finance
+        </h2>
+      </a>
+    </div>
+    <div id="header-menu">
+      <nav id="menu-header">
+        <a href=index.html>Home</a>
+        <a href="calculadora.html">Calculadora</a>
+        <a href="carteira.html">Carteira</a>
+        <a href="pesquisa.html">Ações</a>
+        <a href="login.html">Login</a>
+      </nav>
+    </div>
+  </header>
+  
+  <section id="subtitulo">
+    <h3>Divisão Orçamentária</h3>
+  </section>
+
+  <main>
+    <div>
+      <label for="profile-select">Escolha o perfil de investimento:</label>
+      <select id="profile-select" onchange="updateChart()">
+        <option value="conservador">Conservador</option>
+        <option value="moderado">Moderado</option>
+        <option value="arrojado">Arrojado</option>
+        <option value="agressivo">Agressivo</option>
+      </select>
+    </div>
+    <div id="piechart" style="width: 100%; height: 500px;"></div>
+  </main>
+
+  <footer id="rodape">
+    <div id="rodape-rodape">
+      <h2><a href="#cabecalho">TCC Co. Finance</a></h2>
+      <p>Termos & Condições | Política de Privacidade | Política de Cookies</p>
+    </div>
+  </footer>
+
+</body>
+
+</html>
